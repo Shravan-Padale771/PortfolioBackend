@@ -1,23 +1,34 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 const router = express.Router();
 
 router.post('/send-email/Rohan', async (req, res) => {
-  const { name, email, subject, message } = req.body;
+  const { name, email, subject, message, token } = req.body; // token comes from frontend
 
-  if (!name || !email || !subject || !message) {
-    return res.status(400).json({ message: 'All fields are required.' });
+  if (!name || !email || !subject || !message || !token) {
+    return res.status(400).json({ message: 'All fields and reCAPTCHA token are required.' });
   }
 
   try {
+    // ✅ Verify reCAPTCHA with Google
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}`;
+
+    if (!verifyURL.data.success) {
+      return res.status(400).json({ message: 'Failed reCAPTCHA verification.' });
+    }
+
+    // ✅ Create Nodemailer transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // You can change this (like Mailtrap, Outlook, etc.)
+      service: 'gmail',
       auth: {
         user: process.env.ROHAN_EMAIL_USER,
         pass: process.env.ROHAN_EMAIL_PASS,
       },
     });
 
+    // ✅ Email content
     const mailOptions = {
       from: `"${name}" <${email}>`,
       to: process.env.ROHAN_EMAIL_RECEIVER,
@@ -32,6 +43,7 @@ router.post('/send-email/Rohan', async (req, res) => {
       `,
     };
 
+    // ✅ Send email
     await transporter.sendMail(mailOptions);
 
     res.status(200).json({ message: 'Message sent successfully!' });
