@@ -1,23 +1,35 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const axios = require('axios'); // ✅ Needed for reCAPTCHA verification
 const router = express.Router();
 
 router.post('/send-email/Shravan', async (req, res) => {
-  const { name, email, subject, message } = req.body;
+  const { name, email, subject, message, captcha } = req.body;
 
-  if (!name || !email || !subject || !message) {
-    return res.status(400).json({ message: 'All fields are required.' });
+  if (!name || !email || !subject || !message || !captcha) {
+    return res.status(400).json({ message: 'All fields and captcha are required.' });
   }
 
   try {
+    // ✅ Verify reCAPTCHA with Google
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}`;
+
+    const captchaRes = await axios.post(verifyURL);
+    if (!captchaRes.data.success) {
+      return res.status(400).json({ message: 'Captcha verification failed.' });
+    }
+
+    // ✅ Create transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // You can change this (like Mailtrap, Outlook, etc.)
+      service: 'gmail',
       auth: {
         user: process.env.SHRAVAN_EMAIL_USER,
         pass: process.env.SHRAVAN_EMAIL_PASS,
       },
     });
 
+    // ✅ Email content
     const mailOptions = {
       from: `"${name}" <${email}>`,
       to: process.env.SHRAVAN_EMAIL_RECEIVER,
