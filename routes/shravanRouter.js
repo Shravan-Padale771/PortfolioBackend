@@ -23,7 +23,7 @@ router.post('/send-email/Shravan', async (req, res) => {
     // ✅ Create transporter
     const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
+  port: 465,
   family: 4,
   secure: false, // TLS
   auth: {
