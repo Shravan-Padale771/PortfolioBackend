@@ -12,7 +12,7 @@ router.post('/send-email/Rohan', async (req, res) => {
 
   try {
     // ✅ Verify reCAPTCHA with Google
-    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const secretKey = process.env.RRECAPTCHA_SECRET_KEY;
     const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captcha}`;
 
     if (!verifyURL.data.success) {
