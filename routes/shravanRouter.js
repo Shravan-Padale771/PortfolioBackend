@@ -24,6 +24,7 @@ router.post('/send-email/Shravan', async (req, res) => {
     const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
+  family: 4,
   secure: false, // TLS
   auth: {
     user: process.env.SHRAVAN_EMAIL_USER,
