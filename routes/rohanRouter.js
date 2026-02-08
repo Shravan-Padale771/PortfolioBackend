@@ -21,11 +21,14 @@ router.post('/send-email/Rohan', async (req, res) => {
 
     // ✅ Create Nodemailer transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
       auth: {
         user: process.env.ROHAN_EMAIL_USER,
         pass: process.env.ROHAN_EMAIL_PASS,
       },
+      connectionTimeout: 15000,
     });
 
     // ✅ Email content
